@@ -15,338 +15,571 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
     </script>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
     <style>
+        /* =========================================================
+           DESIGN SYSTEM — tokens
+           ========================================================= */
         :root {
-            --sidebar-width: 260px;
-            --topbar-height: 70px;
-            --transition-speed: 0.25s;
+            --sidebar-width: 264px;
+            --topbar-height: 68px;
+            --transition-speed: .2s;
+            --ease: cubic-bezier(.2,.7,.2,1);
+
+            --font-sans: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+            --c-ink: #0f1a1c;          /* sidebar */
+            --c-ink-2: #172527;
+            --c-ink-text: #c7d3d2;
+            --c-ink-muted: #7b8d8c;
+            --c-primary: #0e7c6b;      /* deep teal */
+            --c-primary-hover: #0b6658;
+            --c-primary-soft: #e3f2ee;
+            --c-accent: #e8a33c;       /* amber */
+            --c-bg: #f5f4f0;
+            --c-surface: #ffffff;
+            --c-surface-2: #faf9f6;
+            --c-border: #e6e3dc;
+            --c-border-strong: #d6d2c8;
+            --c-text: #1b2426;
+            --c-text-2: #5d6a6b;
+            --c-text-3: #8e9898;
+
+            --r-sm: 6px; --r-md: 10px; --r-lg: 14px; --r-xl: 18px; --r-pill: 999px;
+            --sh-1: 0 1px 2px rgba(16,24,26,.05);
+            --sh-2: 0 1px 2px rgba(16,24,26,.04), 0 4px 14px -4px rgba(16,24,26,.08);
+            --sh-3: 0 20px 50px -12px rgba(16,24,26,.25);
+            --focus: 0 0 0 3px rgba(14,124,107,.22);
+            --ctl-h: 40px; --ctl-h-sm: 32px;
+
+            /* status palette */
+            --st-new: #6d5bd0; --st-voicemail: #2b8fb3; --st-noanswer: #d9822b;
+            --st-hungup: #a33b3b; --st-notint: #d1495b; --st-busy: #b8407a;
+            --st-low: #7a8586; --st-int: #2563c9; --st-callback: #0e9f7e;
+            --st-customer: #1f8a4c; --st-proposal: #c9951c; --st-inactive: #a8aeae;
+
+            --bs-body-font-family: var(--font-sans);
+            --bs-body-bg: var(--c-bg);
+            --bs-body-color: var(--c-text);
+            --bs-secondary-color: var(--c-text-2);
+            --bs-tertiary-bg: var(--c-surface-2);
+            --bs-border-color: var(--c-border);
+            --bs-primary: var(--c-primary);
+            --bs-primary-rgb: 14,124,107;
+            --bs-link-color: var(--c-primary);
+            --bs-link-color-rgb: 14,124,107;
+            --bs-link-hover-color: var(--c-primary-hover);
+            --bs-primary-bg-subtle: var(--c-primary-soft);
+            --bs-primary-text-emphasis: var(--c-primary-hover);
+            --bs-border-radius: var(--r-md);
+            --bs-border-radius-sm: var(--r-sm);
+            --bs-border-radius-lg: var(--r-lg);
+            --bs-card-bg: var(--c-surface);
+        }
+        [data-bs-theme="dark"] {
+            --c-bg: #0d1415; --c-surface: #141e1f; --c-surface-2: #182425;
+            --c-border: #243233; --c-border-strong: #304243;
+            --c-text: #e4ebea; --c-text-2: #9aaaa9; --c-text-3: #6f7f7e;
+            --c-primary: #2bb59c; --c-primary-hover: #36c7ac; --c-primary-soft: rgba(43,181,156,.14);
+            --c-ink: #0a1011; --c-ink-2: #121b1c;
+            --bs-body-bg: var(--c-bg); --bs-body-color: var(--c-text);
+            --bs-secondary-color: var(--c-text-2); --bs-tertiary-bg: var(--c-surface-2);
+            --bs-border-color: var(--c-border); --bs-primary: var(--c-primary);
+            --bs-primary-rgb: 43,181,156; --bs-card-bg: var(--c-surface);
+            --bs-emphasis-color: var(--c-text);
+            --sh-2: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px -4px rgba(0,0,0,.4);
         }
 
+        /* =========================================================
+           BASE
+           ========================================================= */
+        html, body { font-family: var(--font-sans); }
         body {
-            font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bs-body-bg);
-            color: var(--bs-body-color);
-            overflow-x: hidden;
+            background: var(--c-bg); color: var(--c-text);
+            overflow-x: hidden; font-size: .9rem; letter-spacing: -.005em;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1,h2,h3,h4,h5,h6 { letter-spacing: -.02em; color: var(--c-text); }
+        h4 { font-weight: 800 !important; font-size: 1.5rem; }
+        .text-muted { color: var(--c-text-2) !important; }
+        .text-purple { color: var(--st-new) !important; }
+        ::selection { background: var(--c-primary-soft); }
+        :focus-visible { outline: none; box-shadow: var(--focus) !important; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
         }
 
-        #app-wrapper {
-            display: flex;
-            min-height: 100vh;
-            width: 100vw;
-        }
+        #app-wrapper { display: flex; min-height: 100vh; width: 100%; }
 
+        /* =========================================================
+           SIDEBAR
+           ========================================================= */
         #sidebar {
             width: var(--sidebar-width);
-            background: var(--bs-tertiary-bg);
-            border-right: 1px solid var(--bs-border-color);
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 1030;
-            transition: transform var(--transition-speed) ease;
-            display: flex;
-            flex-direction: column;
+            background: var(--c-ink);
+            color: var(--c-ink-text);
+            position: fixed; inset: 0 auto 0 0; z-index: 1030;
+            transition: transform var(--transition-speed) var(--ease), filter .45s var(--ease);
+            display: flex; flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,.04);
         }
+        #sidebar .text-muted { color: var(--c-ink-muted) !important; }
+        #sidebar hr { border-color: rgba(255,255,255,.08); opacity: 1; }
+        #sidebar .border-top { border-color: rgba(255,255,255,.08) !important; }
+        .sidebar-brand {
+            height: var(--topbar-height); display: flex; align-items: center;
+            padding: 0 1.4rem; font-weight: 800; font-size: 1.1rem; letter-spacing: -.02em;
+            color: #fff; border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+        .sidebar-brand i {
+            width: 32px; height: 32px; border-radius: 9px; display: inline-flex;
+            align-items: center; justify-content: center; font-size: .95rem;
+            background: var(--c-primary); color: #fff !important;
+            box-shadow: inset 0 -2px 0 rgba(0,0,0,.18);
+        }
+        #sidebar small.text-uppercase {
+            font-size: .66rem !important; letter-spacing: .12em; font-weight: 700 !important;
+            padding-left: 1.1rem !important;
+        }
+        .nav-link-custom {
+            display: flex; align-items: center; gap: .7rem;
+            padding: .55rem .8rem; margin: 2px .5rem;
+            color: var(--c-ink-text); border-radius: var(--r-md);
+            font-weight: 600; font-size: .86rem; text-decoration: none; cursor: pointer;
+            transition: background .15s, color .15s;
+            position: relative;
+        }
+        .nav-link-custom i { font-size: 1.05rem; margin: 0; width: 20px; text-align: center; opacity: .9; }
+        .nav-link-custom:hover { background: rgba(255,255,255,.06); color: #fff; }
+        .nav-link-custom.active {
+            background: rgba(43,181,156,.16) !important; color: #fff !important;
+        }
+        .nav-link-custom.active::before {
+            content: ""; position: absolute; left: -.5rem; top: 8px; bottom: 8px; width: 3px;
+            border-radius: 0 3px 3px 0; background: var(--c-primary);
+        }
+        .nav-link-custom.active i { color: #6fe0c8; }
+        .nav-link-custom.text-primary { color: #6fe0c8 !important; }
+        .nav-link-custom.text-danger { color: #f0919b !important; }
+        .nav-link-custom.text-danger:hover { background: rgba(209,73,91,.14); }
+        #sidebar .fw-bold.small { color: #fff; }
+        #sidebar .btn-outline-secondary, #sidebar .btn-outline-danger {
+            width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center;
+            border-color: rgba(255,255,255,.12); color: var(--c-ink-text); background: transparent;
+        }
+        #sidebar .btn-outline-secondary:hover { background: rgba(255,255,255,.08); color: #fff; }
+        #sidebar .btn-outline-danger:hover { background: rgba(209,73,91,.2); border-color: transparent; color: #f6b2ba; }
 
         #main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            min-width: 0;
-            transition: margin-left var(--transition-speed) ease;
+            margin-left: var(--sidebar-width); flex: 1; display: flex; flex-direction: column;
+            min-width: 0; transition: margin-left var(--transition-speed) var(--ease), filter .45s var(--ease);
+        }
+        /* Dialer blur — applied to sidebar & main content individually so the fixed sidebar keeps its position */
+        #sidebar.dialer-blur,
+        #main-content.dialer-blur {
+            filter: blur(6px) saturate(.9) brightness(.96);
+            pointer-events: none;
+        }
+        @media (max-width: 991.98px) {
+            #sidebar { transform: translateX(-100%); box-shadow: none; }
+            #sidebar.show { transform: translateX(0); box-shadow: var(--sh-3); }
+            #main-content { margin-left: 0; }
         }
 
+        /* =========================================================
+           TOPBAR
+           ========================================================= */
         #topbar {
             height: var(--topbar-height);
-            background: var(--bs-body-bg);
-            border-bottom: 1px solid var(--bs-border-color);
-            position: sticky;
-            top: 0;
-            z-index: 1020;
+            background: color-mix(in srgb, var(--c-bg) 82%, transparent);
+            backdrop-filter: saturate(1.4) blur(10px);
+            border-bottom: 1px solid var(--c-border);
+            position: sticky; top: 0; z-index: 1020;
         }
+        #topbar .input-group { max-width: 100%; }
+        #topbar .input-group-text { background: var(--c-surface) !important; color: var(--c-text-3); }
+        #topbar .input-group .form-control { background: var(--c-surface); }
+        @media (max-width: 767.98px) {
+            #topbar { padding-left: 1rem !important; padding-right: 1rem !important; gap: .5rem; }
+            #topbar .input-group { width: 100% !important; min-width: 0; }
+            #topbar > div:first-child { flex: 1; min-width: 0; }
+            #topbar .btn span, #topbar .lang-switch i { display: none; }
+            #topbar .btn i { margin: 0 !important; }
+            #topbar > div:last-child { gap: .4rem !important; }
+            .lang-switch select { min-width: 0 !important; }
+        }
+        #mainContainer { padding: 2rem !important; max-width: 1600px; width: 100%; margin: 0 auto; }
+        @media (max-width: 767.98px) { #mainContainer { padding: 1.1rem !important; } }
+        .tab-view { animation: viewIn .25s var(--ease); }
+        @keyframes viewIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-        .sidebar-brand {
-            height: var(--topbar-height);
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
-            font-weight: 700;
-            font-size: 1.25rem;
-            color: var(--bs-primary);
-            border-bottom: 1px solid var(--bs-border-color);
+        /* =========================================================
+           CONTROLS
+           ========================================================= */
+        .btn {
+            --bs-btn-font-weight: 600; --bs-btn-border-radius: var(--r-md);
+            --bs-btn-padding-y: .5rem; --bs-btn-padding-x: .95rem; --bs-btn-font-size: .86rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: .15rem;
+            transition: background .15s, border-color .15s, color .15s, box-shadow .15s, transform .1s;
         }
+        .btn:active { transform: translateY(1px); }
+        .btn-sm { --bs-btn-padding-y: .32rem; --bs-btn-padding-x: .7rem; --bs-btn-font-size: .8rem; --bs-btn-border-radius: var(--r-sm); }
+        .btn-primary {
+            --bs-btn-bg: var(--c-primary); --bs-btn-border-color: var(--c-primary);
+            --bs-btn-hover-bg: var(--c-primary-hover); --bs-btn-hover-border-color: var(--c-primary-hover);
+            --bs-btn-active-bg: var(--c-primary-hover); --bs-btn-active-border-color: var(--c-primary-hover);
+            --bs-btn-disabled-bg: var(--c-primary); --bs-btn-disabled-border-color: var(--c-primary);
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,.15), var(--sh-1);
+        }
+        .btn-outline-primary {
+            --bs-btn-color: var(--c-primary); --bs-btn-border-color: var(--c-border-strong);
+            --bs-btn-hover-bg: var(--c-primary-soft); --bs-btn-hover-color: var(--c-primary-hover);
+            --bs-btn-hover-border-color: var(--c-primary); --bs-btn-active-bg: var(--c-primary-soft);
+            --bs-btn-active-color: var(--c-primary-hover); --bs-btn-active-border-color: var(--c-primary);
+            background: var(--c-surface);
+        }
+        .btn-outline-secondary {
+            --bs-btn-color: var(--c-text); --bs-btn-border-color: var(--c-border-strong);
+            --bs-btn-hover-bg: var(--c-surface-2); --bs-btn-hover-color: var(--c-text);
+            --bs-btn-hover-border-color: var(--c-text-3); --bs-btn-active-bg: var(--c-surface-2);
+            --bs-btn-active-color: var(--c-text); --bs-btn-active-border-color: var(--c-text-3);
+            background: var(--c-surface);
+        }
+        .btn-secondary {
+            --bs-btn-bg: var(--c-surface-2); --bs-btn-color: var(--c-text); --bs-btn-border-color: var(--c-border-strong);
+            --bs-btn-hover-bg: var(--c-border); --bs-btn-hover-color: var(--c-text); --bs-btn-hover-border-color: var(--c-border-strong);
+            --bs-btn-active-bg: var(--c-border); --bs-btn-active-color: var(--c-text);
+        }
+        .btn-success { --bs-btn-bg: var(--st-customer); --bs-btn-border-color: var(--st-customer); --bs-btn-hover-bg: #1a7541; --bs-btn-hover-border-color: #1a7541; }
+        .btn-outline-success, .btn-outline-danger, .btn-outline-info, .btn-outline-warning, .btn-outline-dark { background: var(--c-surface); }
 
-        .nav-link-custom {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.25rem;
-            color: var(--bs-secondary-color);
-            border-radius: 0.5rem;
-            margin: 0.25rem 0.75rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            cursor: pointer;
+        .form-control, .form-select {
+            border-radius: var(--r-md); border-color: var(--c-border-strong);
+            background-color: var(--c-surface); color: var(--c-text);
+            min-height: var(--ctl-h); font-size: .875rem;
+            transition: border-color .15s, box-shadow .15s;
         }
+        .form-control-sm, .form-select-sm { min-height: var(--ctl-h-sm); border-radius: var(--r-sm); font-size: .82rem; }
+        textarea.form-control { min-height: auto; }
+        .form-control:hover, .form-select:hover { border-color: var(--c-text-3); }
+        .form-control:focus, .form-select:focus { border-color: var(--c-primary); box-shadow: var(--focus); }
+        .form-control::placeholder { color: var(--c-text-3); }
+        .form-label { color: var(--c-text-2); font-weight: 600 !important; font-size: .76rem !important; letter-spacing: .01em; margin-bottom: .35rem; }
+        .form-check-input, input[type=checkbox] { accent-color: var(--c-primary); }
+        .form-check-input:checked { background-color: var(--c-primary); border-color: var(--c-primary); }
+        .input-group-text { border-color: var(--c-border-strong); background: var(--c-surface-2); color: var(--c-text-2); border-radius: var(--r-md); }
 
-        .nav-link-custom:hover {
-            color: var(--bs-primary);
-            background: rgba(13, 110, 253, 0.08);
+        /* =========================================================
+           CARDS & METRICS
+           ========================================================= */
+        .card {
+            --bs-card-border-color: var(--c-border);
+            --bs-card-border-radius: var(--r-lg);
+            --bs-card-inner-border-radius: calc(var(--r-lg) - 1px);
+            --bs-card-cap-bg: transparent;
+            background: var(--c-surface);
+            border-color: var(--c-border) !important;
+            box-shadow: var(--sh-2);
         }
-
-        .nav-link-custom.active {
-            color: #ffffff !important;
-            background: var(--bs-primary) !important;
-            font-weight: 600;
-        }
-
-        .nav-link-custom i {
-            font-size: 1.2rem;
-            margin-right: 0.75rem;
-        }
+        .card-header { padding: 1rem 1.25rem; border-color: var(--c-border); font-size: .95rem; }
+        .card-footer { background: var(--c-surface-2); border-color: var(--c-border); padding: .7rem 1.25rem !important; align-items: center; flex-wrap: wrap; gap: .5rem; }
+        .card h6.fw-bold { font-size: .95rem; margin-bottom: 1rem; }
+        .bg-tertiary-bg { background: var(--c-surface) !important; }
 
         .metric-card {
-            border: 1px solid var(--bs-border-color);
-            border-radius: 0.75rem;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            padding: 1.25rem 1.35rem !important; border-radius: var(--r-lg);
+            position: relative; overflow: hidden;
+            transition: transform .2s var(--ease), box-shadow .2s var(--ease);
         }
-
-        .metric-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+        .metric-card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -14px rgba(16,24,26,.25); }
+        .metric-card small { font-size: .7rem; letter-spacing: .1em; color: var(--c-text-2) !important; }
+        .metric-card h3 {
+            font-family: var(--font-mono); font-size: 2rem; font-weight: 600 !important;
+            letter-spacing: -.04em; margin-top: .45rem;
         }
-
         .icon-shape {
-            width: 48px;
-            height: 48px;
-            border-radius: 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.35rem;
+            width: 42px; height: 42px; border-radius: var(--r-md);
+            display: flex; align-items: center; justify-content: center; font-size: 1.15rem;
         }
+        .bg-primary-subtle { background: var(--c-primary-soft) !important; }
+        .text-primary { color: var(--c-primary) !important; }
 
+        /* =========================================================
+           TABLES
+           ========================================================= */
+        .table { --bs-table-bg: transparent; --bs-table-hover-bg: var(--c-surface-2); --bs-table-border-color: var(--c-border); margin: 0; font-size: .85rem; }
+        .table td { vertical-align: middle; padding: .8rem 1rem; color: var(--c-text); }
+        .table th { padding: .7rem 1rem; }
+        .table thead th, .table-light th {
+            background: var(--c-surface-2) !important; color: var(--c-text-2) !important;
+            font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em;
+            border-bottom: 1px solid var(--c-border); white-space: nowrap;
+            position: sticky; top: 0; z-index: 1;
+        }
+        .table-responsive { border-radius: inherit; }
+        .table tbody tr { transition: background .12s; }
+        .table tbody tr:last-child td { border-bottom: 0; }
+        .table-bordered { --bs-table-border-color: var(--c-border); }
+
+        .badge { font-weight: 600; letter-spacing: .01em; padding: .38em .68em; border-radius: var(--r-pill); font-size: .72rem; }
+
+        .pagination { --bs-pagination-border-radius: var(--r-sm); --bs-pagination-color: var(--c-text);
+            --bs-pagination-bg: var(--c-surface); --bs-pagination-border-color: var(--c-border);
+            --bs-pagination-hover-bg: var(--c-surface-2); --bs-pagination-hover-color: var(--c-text);
+            --bs-pagination-active-bg: var(--c-primary); --bs-pagination-active-border-color: var(--c-primary);
+            --bs-pagination-focus-box-shadow: var(--focus); gap: 3px; flex-wrap: wrap; }
+        .pagination .page-link { border-radius: var(--r-sm) !important; min-width: 32px; text-align: center; font-weight: 600; }
+
+        /* status badges — soft tinted chips with dot */
+        [class*="status-badge-"] {
+            --st: var(--st-low);
+            background: color-mix(in srgb, var(--st) 13%, transparent) !important;
+            color: color-mix(in srgb, var(--st) 82%, var(--c-text)) !important;
+            border: 1px solid color-mix(in srgb, var(--st) 22%, transparent);
+            display: inline-flex; align-items: center; gap: .4em; white-space: nowrap;
+        }
+        [class*="status-badge-"]::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--st); }
+        [data-bs-theme="dark"] [class*="status-badge-"] { color: color-mix(in srgb, var(--st) 60%, #fff) !important; }
+        .status-badge-new { --st: var(--st-new); }
+        .status-badge-voicemail { --st: var(--st-voicemail); }
+        .status-badge-no-answer { --st: var(--st-noanswer); }
+        .status-badge-hungup { --st: var(--st-hungup); }
+        .status-badge-not-interested { --st: var(--st-notint); }
+        .status-badge-busy { --st: var(--st-busy); }
+        .status-badge-lowpotential { --st: var(--st-low); }
+        .status-badge-interested { --st: var(--st-int); }
+        .status-badge-callback { --st: var(--st-callback); }
+        .status-badge-wrong-number { --st: var(--st-low); }
+        .status-badge-customer { --st: var(--st-customer); }
+        .status-badge-contacted { --st: var(--st-int); }
+        .status-badge-proposal { --st: var(--st-proposal); }
+        .status-badge-inactive { --st: var(--st-inactive); }
+
+        /* bulk action bar */
+        .bulk-action-bar {
+            background: var(--c-ink); color: #fff; border-radius: var(--r-lg);
+            padding: .6rem .75rem; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+            box-shadow: var(--sh-3); position: sticky; top: calc(var(--topbar-height) + 10px); z-index: 1015;
+        }
+        .bulk-action-bar #selectedCount {
+            background: var(--c-primary); padding: .25rem .6rem; border-radius: var(--r-pill); font-family: var(--font-mono);
+        }
+        .bulk-action-bar .btn {
+            background: rgba(255,255,255,.06) !important; border-color: rgba(255,255,255,.12) !important;
+            color: #e6eeed !important;
+        }
+        .bulk-action-bar .btn:hover { background: rgba(255,255,255,.14) !important; }
+        .bulk-action-bar .btn-outline-danger { color: #f6a4ae !important; }
+
+        /* =========================================================
+           IMPORT / COMMENTS / MODALS / TOASTS
+           ========================================================= */
         .drop-zone {
-            border: 2px dashed var(--bs-border-color);
-            border-radius: 0.75rem;
-            padding: 2.5rem;
-            text-align: center;
-            background: var(--bs-tertiary-bg);
-            cursor: pointer;
-            transition: border-color 0.2s ease, background 0.2s ease;
+            border: 1.5px dashed var(--c-border-strong); border-radius: var(--r-lg);
+            padding: 3rem 1.5rem; text-align: center; background: var(--c-surface-2);
+            cursor: pointer; transition: border-color .2s, background .2s;
         }
-
-        .drop-zone.dragover {
-            border-color: var(--bs-primary);
-            background: rgba(13, 110, 253, 0.05);
-        }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--c-primary); background: var(--c-primary-soft); }
+        #view-import-export h4 { margin-bottom: 1.5rem !important; }
+        #view-import-export .d-grid .btn { justify-content: flex-start; font-weight: 700; padding: 1rem 1.2rem !important; border-radius: var(--r-md); border-color: var(--c-border-strong); }
+        .progress { background: var(--c-border); border-radius: var(--r-pill); height: 8px; }
+        .progress-bar { background: var(--c-primary); }
 
         .comment-item {
-            border-left: 3px solid var(--bs-primary);
-            background: var(--bs-tertiary-bg);
-            padding: 0.75rem 1rem;
-            border-radius: 0 0.5rem 0.5rem 0;
-            margin-bottom: 0.75rem;
+            border-left: 3px solid var(--c-primary); background: var(--c-surface-2);
+            padding: .75rem 1rem; border-radius: 0 var(--r-md) var(--r-md) 0; margin-bottom: .6rem;
         }
 
-        @media (max-width: 991.98px) {
-            #sidebar {
-                transform: translateX(-100%);
-            }
-            #sidebar.show {
-                transform: translateX(0);
-            }
-            #main-content {
-                margin-left: 0;
-            }
-        }
+        .modal { --bs-modal-border-radius: var(--r-xl); --bs-modal-bg: var(--c-surface); --bs-modal-border-color: var(--c-border); --bs-modal-header-border-color: var(--c-border); --bs-modal-footer-border-color: var(--c-border); }
+        .modal-content { box-shadow: var(--sh-3); }
+        .modal-header { padding: 1.15rem 1.5rem; }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: .9rem 1.5rem; background: var(--c-surface-2); border-bottom-left-radius: var(--r-xl); border-bottom-right-radius: var(--r-xl); }
+        .modal-body .modal-footer { background: transparent; }
+        .modal-title { font-weight: 800 !important; font-size: 1.1rem; }
+        .modal-backdrop { --bs-backdrop-bg: #0a1011; --bs-backdrop-opacity: .55; }
+        .alert-info { --bs-alert-bg: var(--c-primary-soft); --bs-alert-color: var(--c-primary-hover); --bs-alert-border-color: transparent; border-radius: var(--r-md); }
+        [data-bs-theme="dark"] .alert-info { --bs-alert-color: #8fe3d1; }
 
+        /* ==== TOASTS: short-lived, fade out in 0.4s ==== */
         .toast-container {
-            position: fixed;
-            bottom: 1.5rem;
-            right: 1.5rem;
-            z-index: 1090;
+            position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 1090;
+            pointer-events: none;                 /* don't block the page */
         }
+        .toast {
+            border-radius: var(--r-md); box-shadow: var(--sh-3); border: 0;
+            font-weight: 600; font-size: .8rem;   /* slightly smaller */
+            pointer-events: auto;                 /* close button still clickable */
+            transition: opacity .4s ease, transform .4s ease;   /* 0.4s fade-out */
+            will-change: opacity, transform;
+        }
+        .toast .toast-body { padding: .5rem .65rem; line-height: 1.25; }
+        .toast .btn-close { padding: .35rem; }
 
         .avatar-initials {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: var(--bs-primary);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 0.875rem;
+            width: 36px; height: 36px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--c-primary), #0a5a4e); color: #fff;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: .8rem; flex-shrink: 0;
         }
 
-        .call-btn {
-            background: #198754;
-            border: none;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1.5rem;
-            font-size: 0.8rem;
-            transition: 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: pointer;
+        .call-btn, .aiphone-btn {
+            border: 1px solid transparent; padding: .28rem .7rem; border-radius: var(--r-pill);
+            font-size: .76rem; font-weight: 700; text-decoration: none;
+            display: inline-flex; align-items: center; gap: .3rem; cursor: pointer;
+            transition: background .15s, color .15s; white-space: nowrap;
         }
-        .call-btn:hover { background: #157347; color: white; }
-        .aiphone-btn {
-            background: #0d6efd;
-            border: none;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 1.5rem;
-            font-size: 0.8rem;
-            transition: 0.2s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-            cursor: pointer;
-        }
-        .aiphone-btn:hover { background: #0b5ed7; color: white; }
+        .call-btn { background: color-mix(in srgb, var(--st-customer) 12%, transparent); color: var(--st-customer); border-color: color-mix(in srgb, var(--st-customer) 25%, transparent); }
+        .call-btn:hover { background: var(--st-customer); color: #fff; }
+        .aiphone-btn { background: color-mix(in srgb, var(--st-int) 10%, transparent); color: var(--st-int); border-color: color-mix(in srgb, var(--st-int) 22%, transparent); }
+        .aiphone-btn:hover { background: var(--st-int); color: #fff; }
 
-        .bulk-action-bar {
-            background: var(--bs-tertiary-bg);
-            border-radius: 0.5rem;
-            padding: 0.5rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        /* ===== STATUS BADGES ===== */
-        .status-badge-new { background-color: #6f42c1; color: white; }
-        .status-badge-voicemail { background-color: #0dcaf0; color: #000; }
-        .status-badge-no-answer { background-color: #fd7e14; color: white; }
-        .status-badge-hungup { background-color: #b02a37; color: white; }
-        .status-badge-not-interested { background-color: #dc3545; color: white; }
-        .status-badge-busy { background-color: #d63384; color: white; }
-        .status-badge-lowpotential { background-color: #6c757d; color: white; }
-        .status-badge-interested { background-color: #0d6efd; color: white; }
-        .status-badge-callback { background-color: #20c997; color: white; }
-        /* legacy statuses still supported */
-        .status-badge-wrong-number { background-color: #6c757d; color: white; }
-        .status-badge-customer { background-color: #198754; color: white; }
-        .status-badge-contacted { background-color: #0d6efd; color: white; }
-        .status-badge-proposal { background-color: #ffc107; color: #000; }
-        .status-badge-inactive { background-color: #adb5bd; color: #000; }
-
-        .table td { vertical-align: middle; }
-
-        .lang-switch { display: flex; align-items: center; gap: 0.35rem; }
-        .lang-switch i { color: var(--bs-secondary-color); }
+        .lang-switch { display: flex; align-items: center; gap: .35rem; }
+        .lang-switch i { color: var(--c-text-3); }
         .lang-switch select { width: auto; min-width: 110px; cursor: pointer; }
 
+        /* =========================================================
+           LOGIN
+           ========================================================= */
+        #loginOverlay {
+            position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center;
+            padding: 1rem;
+            background:
+              radial-gradient(1200px 600px at 10% -10%, rgba(43,181,156,.35), transparent 60%),
+              radial-gradient(900px 500px at 110% 110%, rgba(232,163,60,.18), transparent 60%),
+              var(--c-ink);
+        }
+        #loginOverlay .lang-switch { position: absolute; top: 1rem; right: 1rem; }
+        #loginOverlay .lang-switch i { color: var(--c-ink-text); }
+        #loginOverlay .lang-switch select { background-color: rgba(255,255,255,.08); color: #fff; border-color: rgba(255,255,255,.15); }
+        #loginOverlay .lang-switch option { color: #000; }
+        .login-card {
+            background: var(--c-surface); border-radius: var(--r-xl); padding: 2.5rem 2.25rem;
+            width: 100%; max-width: 400px; box-shadow: 0 40px 80px -20px rgba(0,0,0,.6);
+            border: 1px solid var(--c-border);
+        }
+        .login-card .login-mark {
+            width: 52px; height: 52px; border-radius: 14px; margin: 0 auto; display: flex; align-items: center; justify-content: center;
+            background: var(--c-primary); color: #fff !important; font-size: 1.4rem; box-shadow: 0 10px 24px -8px rgba(14,124,107,.6);
+        }
+        .login-card h4 { font-size: 1.4rem; margin-top: 1rem !important; }
+        .login-card .btn-primary { min-height: 44px; }
+
+        /* =========================================================
+           CALLING INDICATOR & AUTO DIALER
+           ========================================================= */
         .calling-indicator {
-            position: fixed; top: 20px; right: 20px; z-index: 9999;
-            background: linear-gradient(135deg, #198754, #157347); color: white;
-            padding: 12px 20px; border-radius: 2rem;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            display: flex; align-items: center; gap: 12px;
-            animation: pulse 1.5s infinite; font-weight: 600; font-size: 0.95rem; max-width: 400px;
+            position: fixed; top: 16px; right: 16px; z-index: 9999;
+            background: var(--c-ink); color: #fff;
+            padding: .7rem .75rem .7rem 1.1rem; border-radius: var(--r-pill);
+            box-shadow: var(--sh-3), 0 0 0 1px rgba(43,181,156,.4);
+            display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: .9rem; max-width: min(400px, calc(100vw - 32px));
         }
         .calling-indicator.hidden { display: none; }
-        .calling-indicator .spinner-border { width: 20px; height: 20px; }
+        .calling-indicator .spinner-border { width: 18px; height: 18px; color: #6fe0c8; }
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0.6); }
-            70% { box-shadow: 0 0 0 18px rgba(25, 135, 84, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(25, 135, 84, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(43,181,156,.45); }
+            70% { box-shadow: 0 0 0 14px rgba(43,181,156,0); }
+            100% { box-shadow: 0 0 0 0 rgba(43,181,156,0); }
         }
-        .calling-indicator .hangup-btn {
-            background: rgba(255,255,255,0.25); border: none; color: white;
-            border-radius: 50%; width: 32px; height: 32px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1rem; transition: 0.2s;
+        .calling-indicator .hangup-btn, .dialer-calling-box .hangup-btn {
+            background: var(--st-notint); border: none; color: #fff; border-radius: 50%;
+            width: 38px; height: 38px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 1rem; transition: transform .15s, background .15s;
         }
-        .calling-indicator .hangup-btn:hover { background: rgba(220,53,69,0.9); }
+        .calling-indicator .hangup-btn:hover, .dialer-calling-box .hangup-btn:hover { background: #b83346; transform: scale(1.06); }
 
         .auto-dialer-panel {
             position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1050; background: var(--bs-body-bg);
-            border: 2px solid var(--bs-primary); border-radius: 1rem;
-            padding: 1rem 1.25rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            min-width: 360px; width: min(880px, calc(100vw - 24px)); display: none;
+            z-index: 1050; background: var(--c-surface); color: var(--c-text);
+            border: 1px solid var(--c-border); border-radius: var(--r-xl);
+            padding: 1.15rem 1.35rem 1.25rem; box-shadow: var(--sh-3), 0 0 0 4px rgba(14,124,107,.08);
+            width: min(920px, calc(100vw - 24px)); max-height: calc(100vh - 40px); overflow-y: auto;
+            display: none;
         }
-        .auto-dialer-panel.show { display: block; }
-        .auto-dialer-panel .progress { height: 8px; border-radius: 4px; }
-        .auto-dialer-btn {
-            background: linear-gradient(135deg, #6f42c1, #0d6efd);
-            border: none; color: white; padding: 0.4rem 1rem;
-            border-radius: 2rem; font-weight: 600; font-size: 0.85rem;
-            transition: 0.2s; cursor: pointer;
-        }
-        .auto-dialer-btn:hover { opacity: 0.9; }
-        .auto-dialer-btn.stop { background: linear-gradient(135deg, #dc3545, #fd7e14); }
+        .auto-dialer-panel.show { display: block; animation: panelIn .25s var(--ease); }
+        @keyframes panelIn { from { opacity: 0; transform: translate(-50%, 10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+        .auto-dialer-panel h6 { font-size: 1rem; font-weight: 800 !important; display: flex; align-items: center; }
+        .auto-dialer-panel h6 i { width: 30px; height: 30px; border-radius: 9px; background: var(--c-primary-soft); color: var(--c-primary); display: inline-flex; align-items: center; justify-content: center; }
+        .auto-dialer-panel .progress { height: 6px; }
+        @media (max-width: 575.98px) { .auto-dialer-panel { bottom: 0; border-radius: var(--r-xl) var(--r-xl) 0 0; width: 100vw; } }
 
-        /* ===== DIALER STATUS BUTTONS (all in one row) ===== */
-        .dialer-status-row {
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 0.25rem;
-            overflow-x: auto;
-            padding-bottom: 3px;
+        .auto-dialer-btn {
+            background: var(--c-primary); border: none; color: #fff; padding: .65rem 1rem; min-height: 42px;
+            border-radius: var(--r-md); font-weight: 700; font-size: .88rem;
+            transition: background .15s, transform .1s; cursor: pointer;
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,.18);
         }
-        .dialer-status-btn {
-            flex: 0 0 auto;
-            border: none; color: #fff;
-            padding: 0.3rem 0.5rem;
-            border-radius: 1.5rem;
-            font-size: 0.7rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-            white-space: nowrap;
-            line-height: 1.1;
-        }
-        .dialer-status-btn:hover { opacity: 0.85; transform: scale(1.03); }
-        .dialer-status-btn.new { background: #6f42c1; }
-        .dialer-status-btn.voicemail { background: #0dcaf0; color: #000; }
-        .dialer-status-btn.no-answer { background: #fd7e14; }
-        .dialer-status-btn.hungup { background: #b02a37; }
-        .dialer-status-btn.not-interested { background: #dc3545; }
-        .dialer-status-btn.busy { background: #d63384; }
-        .dialer-status-btn.lowpotential { background: #6c757d; }
-        .dialer-status-btn.interested { background: #0d6efd; }
-        .dialer-status-btn.callback { background: #20c997; }
+        .auto-dialer-btn:hover { background: var(--c-primary-hover); }
+        .auto-dialer-btn:active { transform: translateY(1px); }
+        .auto-dialer-btn.stop { background: var(--st-notint); }
+        .auto-dialer-btn.stop:hover { background: #b83346; }
+        #nextCallBtn { min-height: 40px; }
 
         .dialer-calling-box {
-            background: linear-gradient(135deg, #198754, #157347); color: #fff;
-            border-radius: 0.75rem; padding: 0.75rem 1rem;
-            display: flex; align-items: center; justify-content: space-between;
-            gap: 0.75rem; animation: pulse 1.5s infinite;
+            background: var(--c-ink); color: #fff; border-radius: var(--r-lg); padding: .85rem 1rem;
+            display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+            animation: pulse 1.8s infinite;
         }
-        .dialer-calling-box .spinner-border { width: 18px; height: 18px; }
-        .dialer-calling-box .hangup-btn {
-            background: rgba(255,255,255,0.25); border: none; color: #fff;
-            border-radius: 50%; width: 32px; height: 32px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1rem; transition: 0.2s;
+        .dialer-calling-box strong { font-size: 1rem; }
+        .dialer-calling-box #currentCallNumber { font-family: var(--font-mono); color: #9fe8d7; }
+        .dialer-calling-box .spinner-border { width: 18px; height: 18px; color: #6fe0c8; }
+
+        /* DIALER STATUS BUTTONS — 9 statuses, one row, fixed order */
+        .dialer-status-row {
+            display: grid; grid-template-columns: repeat(9, minmax(0, 1fr));
+            gap: .35rem; padding: 2px 0 4px;
         }
-        .dialer-calling-box .hangup-btn:hover { background: rgba(220,53,69,0.9); }
+        .dialer-status-btn {
+            --st: var(--st-low);
+            min-width: 0; min-height: 44px;
+            border: 1px solid color-mix(in srgb, var(--st) 30%, transparent);
+            background: color-mix(in srgb, var(--st) 10%, var(--c-surface));
+            color: color-mix(in srgb, var(--st) 85%, var(--c-text));
+            padding: .4rem .3rem; border-radius: var(--r-md);
+            font-size: .72rem; font-weight: 700; line-height: 1.15; cursor: pointer;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem;
+            text-align: center; white-space: normal;
+            transition: background .15s, color .15s, transform .1s, box-shadow .15s;
+        }
+        .dialer-status-btn i { margin: 0 !important; font-size: .95rem; }
+        .dialer-status-btn:hover { background: var(--st); color: #fff; border-color: var(--st); box-shadow: 0 6px 14px -6px var(--st); }
+        .dialer-status-btn:active { transform: scale(.97); }
+        [data-bs-theme="dark"] .dialer-status-btn { color: color-mix(in srgb, var(--st) 60%, #fff); }
+        .dialer-status-btn.new { --st: var(--st-new); }
+        .dialer-status-btn.voicemail { --st: var(--st-voicemail); }
+        .dialer-status-btn.no-answer { --st: var(--st-noanswer); }
+        .dialer-status-btn.hungup { --st: var(--st-hungup); }
+        .dialer-status-btn.not-interested { --st: var(--st-notint); }
+        .dialer-status-btn.busy { --st: var(--st-busy); }
+        .dialer-status-btn.lowpotential { --st: var(--st-low); }
+        .dialer-status-btn.interested { --st: var(--st-int); }
+        .dialer-status-btn.callback { --st: var(--st-callback); }
+        /* narrow screens: keep order, scroll horizontally instead of shrinking */
+        @media (max-width: 767.98px) {
+            .dialer-status-row {
+                display: flex; overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 6px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .dialer-status-btn { flex: 0 0 auto; min-width: 84px; scroll-snap-align: start; }
+        }
+        #dialerComment { border-radius: var(--r-md); }
     </style>
 </head>
 <body>
 
-<div id="loginOverlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#0d6efd,#6f42c1);display:flex;align-items:center;justify-content:center;">
-    <div style="position:absolute;top:1rem;right:1rem;" class="lang-switch">
-        <i class="bi bi-translate text-white"></i>
+<div id="loginOverlay">
+    <div class="lang-switch">
+        <i class="bi bi-translate"></i>
         <select class="form-select form-select-sm lang-select" onchange="setLang(this.value)" aria-label="Language / Sprache">
             <option value="en">English</option>
             <option value="de">Deutsch</option>
         </select>
     </div>
-    <div style="background:#fff;border-radius:1rem;padding:2.5rem 2rem;width:100%;max-width:380px;box-shadow:0 20px 50px rgba(0,0,0,0.3);">
-        <div class="text-center mb-4"><i class="bi bi-briefcase-fill text-primary" style="font-size:2.5rem;"></i><h4 class="fw-bold mt-2 mb-0">ApexCRM</h4><small class="text-muted" data-i18n="login.sub">Please sign in to continue</small></div>
+    <div class="login-card">
+        <div class="text-center mb-4"><div class="login-mark"><i class="bi bi-briefcase-fill"></i></div><h4 class="fw-bold mt-2 mb-0">Thomas CRM</h4><small class="text-muted" data-i18n="login.sub">Please sign in to continue</small></div>
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="mb-3"><label class="form-label small fw-bold" data-i18n="login.user">Username</label><input type="text" id="login-user" class="form-control" autocomplete="username" required></div>
             <div class="mb-3"><label class="form-label small fw-bold" data-i18n="login.pass">Password</label><input type="password" id="login-pass" class="form-control" autocomplete="current-password" required></div>
@@ -358,7 +591,7 @@
 
 <div id="app-wrapper" style="display:none;">
     <aside id="sidebar">
-        <div class="sidebar-brand"><i class="bi bi-briefcase-fill text-primary me-2"></i><span>ThomasCRM</span></div>
+        <div class="sidebar-brand"><i class="bi bi-briefcase-fill me-2"></i><span>Thomas CRM</span></div>
         <div class="p-2 flex-grow-1 overflow-y-auto">
             <small class="text-uppercase text-muted fw-bold px-3 d-block my-2" style="font-size:0.7rem;" data-i18n="nav.main">Main Menu</small>
             <a href="#" class="nav-link-custom active" onclick="switchTab('dashboard',event)"><i class="bi bi-speedometer2"></i> <span data-i18n="nav.dashboard">Dashboard</span></a>
@@ -401,7 +634,7 @@
                 <div class="d-flex align-items-center justify-content-between mb-4"><div><h4 class="fw-bold mb-1" data-i18n="nav.dashboard">Dashboard</h4></div><button class="btn btn-sm btn-outline-primary" onclick="refreshDashboard()"><i class="bi bi-arrow-clockwise me-1"></i> <span data-i18n="dash.refresh">Refresh</span></button></div>
                 <div class="row g-3 mb-4">
                     <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold" data-i18n="dash.total">TOTAL</small><h3 class="fw-bold mb-0" id="dash-total-customers">0</h3></div><div class="icon-shape bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></div></div></div></div>
-                    <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold" data-i18n="dash.new">NEW</small><h3 class="fw-bold mb-0" id="dash-total-leads">0</h3></div><div class="icon-shape bg-purple-subtle text-purple" style="background:rgba(111,66,193,0.1);color:#6f42c1;"><i class="bi bi-star-fill"></i></div></div></div></div>
+                    <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold" data-i18n="dash.new">NEW</small><h3 class="fw-bold mb-0" id="dash-total-leads">0</h3></div><div class="icon-shape bg-purple-subtle text-purple" style="background:color-mix(in srgb,var(--st-new) 12%,transparent);color:var(--st-new);"><i class="bi bi-star-fill"></i></div></div></div></div>
                     <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold" data-i18n="dash.noanswer">NO ANSWER</small><h3 class="fw-bold mb-0" id="dash-no-answer">0</h3></div><div class="icon-shape bg-warning-subtle text-warning"><i class="bi bi-telephone-x-fill"></i></div></div></div></div>
                     <div class="col-12 col-sm-6 col-xl-3"><div class="card metric-card p-3"><div class="d-flex justify-content-between"><div><small class="text-muted fw-semibold" data-i18n="dash.notint">NOT INTERESTED</small><h3 class="fw-bold mb-0" id="dash-not-interested">0</h3></div><div class="icon-shape bg-danger-subtle text-danger"><i class="bi bi-hand-thumbs-down-fill"></i></div></div></div></div>
                 </div>
@@ -414,12 +647,12 @@
                 <div class="card border mb-3 p-3 bg-tertiary-bg"><div class="row g-2 align-items-end"><div class="col-12 col-md-3"><label class="form-label small fw-bold mb-1" data-i18n="f.search">Search</label><input type="text" id="filterSearch" class="form-control form-control-sm" oninput="applyFilters()"></div><div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1" data-i18n="lbl.status">Status</label><select id="filterStatus" class="form-select form-select-sm" onchange="applyFilters()"><option value="" data-i18n="f.all">All</option><option value="New" data-i18n="st.New">New</option><option value="Voice Mail" data-i18n="st.Voice Mail">Voice Mail</option><option value="No Answer" data-i18n="st.No Answer">No Answer</option><option value="Hung Up" data-i18n="st.Hung Up">Hung Up</option><option value="Not Interested" data-i18n="st.Not Interested">Not Interested</option><option value="Busy" data-i18n="st.Busy">Busy</option><option value="Low Potential" data-i18n="st.Low Potential">Low Potential</option><option value="Interested" data-i18n="st.Interested">Interested</option><option value="Call Back" data-i18n="st.Call Back">Call Back</option><option value="Wrong Number" data-i18n="st.Wrong Number">Wrong Number</option><option value="Contacted" data-i18n="st.Contacted">Contacted</option><option value="Proposal Sent" data-i18n="st.Proposal Sent">Proposal Sent</option><option value="Customer" data-i18n="st.Customer">Customer</option><option value="Inactive" data-i18n="st.Inactive">Inactive</option></select></div><div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1" data-i18n="lbl.priority">Priority</label><select id="filterPriority" class="form-select form-select-sm" onchange="applyFilters()"><option value="" data-i18n="f.all">All</option><option value="High" data-i18n="p.High">High</option><option value="Medium" data-i18n="p.Medium">Medium</option><option value="Low" data-i18n="p.Low">Low</option></select></div><div class="col-6 col-md-2"><label class="form-label small fw-bold mb-1" data-i18n="lbl.source">Source</label><select id="filterSource" class="form-select form-select-sm" onchange="applyFilters()"><option value="" data-i18n="f.all">All</option><option value="Website" data-i18n="src.Website">Website</option><option value="Referral" data-i18n="src.Referral">Referral</option><option value="Cold Call" data-i18n="src.Cold Call">Cold Call</option><option value="LinkedIn" data-i18n="src.LinkedIn">LinkedIn</option><option value="Trade Show" data-i18n="src.Trade Show">Trade Show</option></select></div><div class="col-6 col-md-3 d-flex gap-1 align-items-end"><div class="w-100"><label class="form-label small fw-bold mb-1" data-i18n="f.show">Show</label><select id="itemsPerPageSelect" class="form-select form-select-sm" onchange="changeItemsPerPage()"><option value="20">20</option><option value="50">50</option><option value="100">100</option></select></div><button class="btn btn-sm btn-outline-secondary w-100" onclick="resetFilters()" data-i18n="f.clear">Clear</button></div></div></div>
                 <div class="bulk-action-bar mb-3 d-none" id="bulkActionBar">
                     <span class="small fw-bold me-2" id="selectedCount">0</span>
-                    <button class="btn btn-sm btn-outline-secondary" style="border-color:#6f42c1;color:#6f42c1;" onclick="bulkChangeStatus('New')" data-i18n="st.New">New</button>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="bulkChangeStatus('New')" data-i18n="st.New">New</button>
                     <button class="btn btn-sm btn-outline-info" onclick="bulkChangeStatus('Voice Mail')" data-i18n="st.Voice Mail">Voice Mail</button>
                     <button class="btn btn-sm btn-outline-warning" onclick="bulkChangeStatus('No Answer')" data-i18n="st.No Answer">No Answer</button>
                     <button class="btn btn-sm btn-outline-dark" onclick="bulkChangeStatus('Hung Up')" data-i18n="st.Hung Up">Hung Up</button>
                     <button class="btn btn-sm btn-outline-danger" onclick="bulkChangeStatus('Not Interested')" data-i18n="st.Not Interested">Not Interested</button>
-                    <button class="btn btn-sm btn-outline-danger" style="border-color:#d63384;color:#d63384;" onclick="bulkChangeStatus('Busy')" data-i18n="st.Busy">Busy</button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="bulkChangeStatus('Busy')" data-i18n="st.Busy">Busy</button>
                     <button class="btn btn-sm btn-outline-secondary" onclick="bulkChangeStatus('Low Potential')" data-i18n="st.Low Potential">Low Potential</button>
                     <button class="btn btn-sm btn-outline-primary" onclick="bulkChangeStatus('Interested')" data-i18n="st.Interested">Interested</button>
                     <button class="btn btn-sm btn-outline-success" onclick="bulkChangeStatus('Call Back')" data-i18n="st.Call Back">Call Back</button>
@@ -726,7 +959,62 @@ function save(){localStorage.setItem(SK,JSON.stringify(customers));}
 function ensureOrder(){let m=customers.reduce((x,c)=>Math.max(x,c.orderIndex||0),0);customers.forEach(c=>{if(!c.orderIndex){m++;c.orderIndex=m;}});save();}
 function refreshAll(){refreshDash();renderTable();updateBulk();}
 window.refreshDashboard=function(){refreshDash();};
-function toast(msg,type='success'){const c=document.getElementById('toastContainer');const bg=type==='danger'?'bg-danger':'bg-success';c.insertAdjacentHTML('beforeend',`<div class="toast align-items-center text-white ${bg} border-0 show"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`);setTimeout(()=>{const els=c.querySelectorAll('.toast');if(els.length>3)els[0].remove();},3500);}
+
+/* =========================================================
+   TOASTS — short-lived, auto-dismiss, 0.4 s fade-out
+   ========================================================= */
+const TOAST_VISIBLE_MS = 2000;
+const TOAST_FADE_MS    = 400;
+const TOAST_MAX        = 3;
+
+function toast(msg,type='success'){
+  const c=document.getElementById('toastContainer');
+  if(!c)return;
+
+  const same=Array.from(c.querySelectorAll('.toast')).find(el=>el.dataset.msg===msg);
+  if(same){
+    clearTimeout(Number(same.dataset.timer));
+    same.dataset.timer=setTimeout(()=>dismissToast(same),TOAST_VISIBLE_MS);
+    return;
+  }
+
+  const alive=Array.from(c.querySelectorAll('.toast'));
+  if(alive.length>=TOAST_MAX)alive.slice(0,alive.length-TOAST_MAX+1).forEach(el=>el.remove());
+
+  const bg=type==='danger'?'bg-danger':type==='primary'?'bg-primary':'bg-success';
+  const el=document.createElement('div');
+  el.className=`toast align-items-center text-white ${bg} border-0 show`;
+  el.dataset.msg=msg;
+  el.innerHTML=`<div class="d-flex"><div class="toast-body">${msg}</div><button type="button" class="btn-close btn-close-white me-2 m-auto" aria-label="Close"></button></div>`;
+  c.appendChild(el);
+
+  el.querySelector('.btn-close').addEventListener('click',()=>{clearTimeout(Number(el.dataset.timer));dismissToast(el);});
+  el.dataset.timer=setTimeout(()=>dismissToast(el),TOAST_VISIBLE_MS);
+}
+
+function dismissToast(el){
+  if(!el||!el.isConnected||el.dataset.hiding)return;
+  el.dataset.hiding='1';
+  clearTimeout(Number(el.dataset.timer));
+  el.style.opacity='0';
+  el.style.transform='translateY(8px)';
+  setTimeout(()=>el.remove(),TOAST_FADE_MS);
+}
+/* ================= END TOASTS ================= */
+
+/* ================= DIALER BLUR (stylish) =================
+   Applied to #sidebar and #main-content individually so the
+   fixed sidebar keeps its position and never scrolls away.
+   ========================================================= */
+function setDialerBlur(on){
+  const s=document.getElementById('sidebar');
+  const m=document.getElementById('main-content');
+  if(s)s.classList.toggle('dialer-blur',!!on);
+  if(m)m.classList.toggle('dialer-blur',!!on);
+}
+window.setDialerBlur=setDialerBlur;
+/* ================= END DIALER BLUR ================= */
+
 function esc(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'):'';}
 function statusClass(s){const map={'New':'status-badge-new','Voice Mail':'status-badge-voicemail','No Answer':'status-badge-no-answer','Hung Up':'status-badge-hungup','Not Interested':'status-badge-not-interested','Busy':'status-badge-busy','Low Potential':'status-badge-lowpotential','Interested':'status-badge-interested','Call Back':'status-badge-callback','Wrong Number':'status-badge-wrong-number','Voicemail':'status-badge-voicemail','Contacted':'status-badge-contacted','Proposal Sent':'status-badge-proposal','Customer':'status-badge-customer','Inactive':'status-badge-inactive'};return map[s]||'bg-light text-dark';}
 function priorityClass(p){return p==='High'?'bg-danger':p==='Medium'?'bg-warning text-dark':'bg-info text-dark';}
@@ -761,6 +1049,7 @@ function startCall(cid,ev,fromDialer){
   callStartTime=Date.now();
   if(fromDialer){
     document.getElementById('callingIndicator').classList.add('hidden');
+    setDialerBlur(true);   /* <-- stylish blur on the CRM while the dialer calls */
   }else{
     document.getElementById('callingIndicator').classList.remove('hidden');
     document.getElementById('callingName').innerText=c.name;
@@ -885,7 +1174,19 @@ function processNextAdCall(){
   adWaiting=true;
   document.getElementById('autoDialerStatus').innerText=t('dlr.inprogress',{name:c.name});
 }
-window.stopAutoDialer=function(){adRunning=false;adWaiting=false;if(callTimer)clearTimeout(callTimer);document.getElementById('callingIndicator').classList.add('hidden');document.getElementById('currentCallInfo').classList.add('d-none');document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');document.getElementById('dialerCommentBox').classList.add('d-none');document.getElementById('autoDialerStatus').innerText=t('dlr.stopped');updateAdButtons(false);toast(t('t.dialerstopped'),'danger');};
+window.stopAutoDialer=function(){
+  setDialerBlur(false);           /* <-- clear the blur when the dialer stops */
+  adRunning=false;adWaiting=false;
+  if(callTimer)clearTimeout(callTimer);
+  document.getElementById('callingIndicator').classList.add('hidden');
+  document.getElementById('currentCallInfo').classList.add('d-none');
+  document.getElementById('nextCallBtn').classList.add('d-none');
+  document.getElementById('dialerStatusButtons').classList.add('d-none');
+  document.getElementById('dialerCommentBox').classList.add('d-none');
+  document.getElementById('autoDialerStatus').innerText=t('dlr.stopped');
+  updateAdButtons(false);
+  toast(t('t.dialerstopped'),'danger');
+};
 function updateAdButtons(run){document.getElementById('startAutoDialerBtn').classList.toggle('d-none',run);document.getElementById('stopAutoDialerBtn').classList.toggle('d-none',!run);document.getElementById('autoDialerCount').disabled=run;document.getElementById('autoDialerInterval').disabled=run;document.getElementById('autoDialerStatusFilter').disabled=run;if(!run){document.getElementById('nextCallBtn').classList.add('d-none');document.getElementById('dialerStatusButtons').classList.add('d-none');document.getElementById('dialerCommentBox').classList.add('d-none');}}
 window.startAutoDialer=function(){if(adRunning)return;const cnt=parseInt(document.getElementById('autoDialerCount').value)||20;const sf=document.getElementById('autoDialerStatusFilter').value;const sts=sf?sf.split(','):[];const pool=customers.filter(c=>c.phone&&!c.archived&&(sts.length===0||sts.includes(c.status))).sort((a,b)=>(b.orderIndex||0)-(a.orderIndex||0));if(!pool.length){toast(t('t.nocontactsphone'),'danger');return;}adQueue=pool.slice(0,Math.min(cnt,pool.length));adIdx=0;adTotal=adQueue.length;adRunning=true;adWaiting=false;adCurrentId=null;document.getElementById('autoDialerProgressContainer').classList.remove('d-none');document.getElementById('autoDialerCounter').innerText=`0/${adTotal}`;document.getElementById('autoDialerProgressBar').style.width='0%';updateAdButtons(true);toast(t('t.dialerstart',{n:adTotal}));processNextAdCall();};
 window.openAutoDialerPanel=function(e){if(e)e.preventDefault();document.getElementById('autoDialerPanel').classList.add('show');};
